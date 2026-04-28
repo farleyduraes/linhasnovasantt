@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Consulta de Linhas</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+h1 { text-align: center; }
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e293b;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #334155;
+}
+
+th { background: #020617; }
+</style>
+</head>
+
+<body>
+
+<h1>🚍 Consulta de Linhas</h1>
+<div id="status">Carregando...</div>
+
+<input id="busca" placeholder="Digite cidade ou empresa...">
+
+<table>
+<thead>
+<tr>
+<th>Origem</th>
+<th>Destino</th>
+<th>Empresa</th>
+<th>CNPJ</th>
+</tr>
+</thead>
+<tbody id="tabela"></tbody>
+</table>
+
+<script>
+const worker = new Worker("worker.js");
+
+const busca = document.getElementById("busca");
+const tabela = document.getElementById("tabela");
+
+let pronto = false;
+
+// carrega JSON
+fetch("dados.json")
+  .then(res => res.json())
+  .then(json => {
+    worker.postMessage({ tipo: "init", payload: json });
+  });
+
+// resposta do worker
+worker.onmessage = function(e) {
+  const { tipo, payload } = e.data;
+
+  if (tipo === "ready") {
+    pronto = true;
+    console.log("Sistema pronto 🚀");
+  }
+
+  if (tipo === "resultado") {
+    renderTabela(payload);
+  }
+};
+
+// render super leve
+function renderTabela(lista) {
+  tabela.innerHTML = "";
+
+  const fragment = document.createDocumentFragment();
+
+  lista.forEach(d => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${d.origem}</td>
+      <td>${d.destino}</td>
+      <td>${d.empresa}</td>
+      <td>${d.cnpj}</td>
+    `;
+
+    fragment.appendChild(tr);
+  });
+
+  tabela.appendChild(fragment);
+}
+
+// debounce
+function debounce(fn, delay) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
+// busca
+busca.addEventListener("input", debounce(() => {
+  if (!pronto) return;
+
+  const valor = busca.value;
+
+  if (valor.length < 2) {
+    tabela.innerHTML = "";
+    return;
+  }
+
+  worker.postMessage({
+    tipo: "buscar",
+    payload: valor
+  });
+
+}, 200));
+</script>
+
+</body>
+</html>
