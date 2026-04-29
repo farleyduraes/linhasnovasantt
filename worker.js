@@ -23,29 +23,43 @@ function separarMercado(mercado) {
 onmessage = function(e) {
   const { tipo, payload } = e.data;
 
-  if (tipo === "init") {
-    dados = payload.map(d => {
-      const { origem, destino } = separarMercado(d.MERCADO);
+if (tipo === "init") {
+  dados = [];
 
-      const empresa = d.TRANSPORTADORA_CONTEMPLADA_1 || "";
+  payload.forEach(d => {
+    const { origem, destino } = separarMercado(d.MERCADO);
+
+    // transportadora 1
+    if (d.TRANSPORTADORA_CONTEMPLADA_1 && d.TRANSPORTADORA_CONTEMPLADA_1 !== "-") {
+      const empresa = d.TRANSPORTADORA_CONTEMPLADA_1;
       const cnpj = d.CNPJ_1 || "";
 
-      // 🔥 string única otimizada pra busca
-      const busca = normalizar(
-        origem + " " + destino + " " + empresa
-      );
-
-      return {
+      dados.push({
         origem,
         destino,
         empresa,
         cnpj,
-        busca
-      };
-    });
+        busca: normalizar(origem + " " + destino + " " + empresa)
+      });
+    }
 
-    postMessage({ tipo: "ready" });
-  }
+    // transportadora 2
+    if (d.TRANSPORTADORA_CONTEMPLADA_2 && d.TRANSPORTADORA_CONTEMPLADA_2 !== "-") {
+      const empresa = d.TRANSPORTADORA_CONTEMPLADA_2;
+      const cnpj = d.CNPJ_2 || "";
+
+      dados.push({
+        origem,
+        destino,
+        empresa,
+        cnpj,
+        busca: normalizar(origem + " " + destino + " " + empresa)
+      });
+    }
+  });
+
+  postMessage({ tipo: "ready" });
+}
 
   if (tipo === "buscar") {
     const termo = normalizar(payload);
