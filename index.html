@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Consulta de Linhas</title>
-
+<div id="status"></div>
 <style>
 body {
   font-family: Arial;
@@ -35,13 +35,36 @@ th, td {
 }
 
 th { background: #020617; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e293b;
+  display: block;
+  overflow-x: auto;
+}
+
+@media (max-width: 600px) {
+  th, td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  input {
+    font-size: 14px;
+  }
+}
+
+body {
+  max-width: 900px;
+  margin: auto;
+}
 </style>
 </head>
 
 <body>
 
 <h1>🚍 Consulta de Linhas</h1>
-<div id="status">Carregando...</div>
 
 <input id="busca" placeholder="Digite cidade ou empresa...">
 

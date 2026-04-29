@@ -23,7 +23,7 @@ function separarMercado(mercado) {
 onmessage = function(e) {
   const { tipo, payload } = e.data;
 
-if (tipo === "init") {
+ if (tipo === "init") {
   dados = [];
 
   payload.forEach(d => {
