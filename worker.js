@@ -76,7 +76,7 @@ onmessage = function(e) {
         resultado.push(dados[i]);
 
         // 🔥 corta cedo (muito importante)
-        if (resultado.length >= 50) break;
+        if (resultado.length >= 5000) break;
       }
     }
 
